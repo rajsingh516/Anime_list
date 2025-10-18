@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Anime & TV Series Tracker</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    /* Login/Register Advancements */
+    #loginSection {
+      position: relative;
+      z-index: 2;
+    }
+    #loginSection::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(circle at 60% 40%, #7c3aed33 0%, #f472b633 100%);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .auth-container {
+      position: relative;
+      z-index: 2;
+    }
+    #loginSection input {
+      transition: box-shadow 0.3s, border 0.3s;
+      border: 2px solid #e0e0e0;
+    }
+    #loginSection input:focus {
+      box-shadow: 0 0 0 3px #f472b6aa;
+      border: 2px solid #f472b6;
+      outline: none;
+    }
+    #loginSection .main-btn {
+      transition: background 0.2s, transform 0.2s;
+    }
+    #loginSection .main-btn:hover {
+      background: #c026d3 !important;
+      transform: scale(1.07);
+    }
+    #loginSection .tab-btns .tab-btn {
+      box-shadow: 0 2px 8px #7c3aed22;
+      transition: box-shadow 0.2s, background 0.2s;
+    }
+    #loginSection .tab-btn.active {
+      box-shadow: 0 4px 16px #f472b633;
+      background: #f472b6 !important;
+    }
+    /* Confetti animation */
+    .confetti {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 9999;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: confetti-fall 1.2s linear forwards;
+    }
+    @keyframes confetti-fall {
+      to {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0.2;
+      }
+    }
+    /* Card bounce-in animation */
+    .card {
+      animation: bounce-in 0.8s cubic-bezier(.77,0,.18,1);
+    }
+    @keyframes bounce-in {
+      0% { transform: scale(0.7) translateY(40px); opacity: 0; }
+      60% { transform: scale(1.05) translateY(-8px); opacity: 1; }
+      100% { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    /* Animation for section transitions */
+    #loginSection, #animeSection {
+      transition: opacity 0.7s cubic-bezier(.77,0,.18,1), transform 0.7s cubic-bezier(.77,0,.18,1);
+    }
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-40px) scale(0.95);
+      pointer-events: none;
+    }
+    .fade-in {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    :root {
+      --primary: #7c3aed;
+      --background: #0f172a;
+      --card: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+      --accent: #f472b6;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: var(--background);
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: color 0.3s, background 0.3s;
+    }
+
+    header {
+      background: var(--primary);
+      padding: 20px 40px;
+      text-align: center;
+      font-size: 2rem;
+      font-weight: 600;
+      letter-spacing: 1px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    nav {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      padding: 15px;
+      background-color: white;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-wrap: wrap;
+      transition: background 0.3s;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 8px 16px;
+      border-radius: 20px;
+      transition: all 0.3s ease;
+      outline: none;
+    }
+
+    nav a:hover, nav a:focus {
+      background-color: var(--primary);
+      transform: scale(1.1);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--primary);
+    }
+
+    .section {
+      max-width: 1200px;
+      margin: 40px auto;
+      padding: 0 20px;
+      width: 100%;
+    }
+
+    .section h2 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+      color: #c4b5fd;
+      text-align: left;
+      transition: color 0.3s;
+    }
+
+    .card-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+    }
+
+    .card h3 {
+      margin-bottom: 10px;
+      color: var(--accent);
+      font-size: 1.2rem;
+      transition: color 0.3s;
+    }
+
+    .card p, .card ul {
+      font-size: 1rem;
+      color: #e2e8f0;
+      transition: color 0.3s;
+    }
+
+    .main-btn {
+      display: inline-block;
+      margin: 24px 0 0 0;
+      padding: 12px 32px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 24px;
+      box-shadow: 0 2px 8px var(--accent);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .main-btn:hover, .main-btn:focus {
+      background: #c026d3;
+      transform: scale(1.05);
+      outline: none;
+    }
+
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: white;
+      font-size: 14px;
+      margin-top: auto;
+      width: 100%;
+      transition: background 0.3s;
+    }
+
+    @media (max-width: 900px) {
+      .section {
+        max-width: 100vw;
+        padding: 0 10px;
+      }
+      .card-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    @media (max-width: 600px) {
+      header {
+        font-size: 1.2rem;
+        padding: 12px;
+      }
+      .section h2 {
+        font-size: 1.2rem;
+      }
+      .card-container {
+        grid-template-columns: 1fr;
+      }
+      .main-btn {
+        width: 100%;
+        font-size: 1rem;
+        padding: 12px 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="confetti" class="confetti"></div>
+  <!-- Login/Register Section (always shown first) -->
+  <div id="loginSection" style="display:block;">
+    <div class="auth-container" style="background: linear-gradient(135deg, #7c3aed 0%, #f472b6 100%);border-radius: 18px;box-shadow: 0 8px 32px rgba(0,0,0,0.2);padding: 40px 32px;width: 350px;display: flex;flex-direction: column;align-items: center;backdrop-filter: blur(8px);margin:40px auto;">
+      <h2 style="color:#fff;margin-bottom:18px;font-size:2rem;font-weight:600;">AnimeTV Tracker</h2>
+      <div class="tab-btns" style="display: flex;gap: 8px;margin-bottom: 24px;width: 100%;">
+        <button id="loginTab" class="tab-btn active" style="flex:1;padding:10px 0;border:none;border-radius:8px;background:#7c3aed;color:#fff;font-weight:600;cursor:pointer;transition:background 0.2s;" onclick="showTab('login')">Login</button>
+        <button id="registerTab" class="tab-btn" style="flex:1;padding:10px 0;border:none;border-radius:8px;background:#f472b6;color:#fff;font-weight:600;cursor:pointer;transition:background 0.2s;" onclick="showTab('register')">Register</button>
+      </div>
+      <form id="loginForm" onsubmit="return handleLogin(event)" style="width:100%;display:flex;flex-direction:column;gap:16px;">
+        <input type="text" name="username" placeholder="Username" required style="padding:10px;border-radius:8px;border:none;font-size:1rem;">
+        <input type="password" name="password" placeholder="Password" required style="padding:10px;border-radius:8px;border:none;font-size:1rem;">
+        <button type="submit" class="main-btn" style="padding:12px 0;background:#f472b6;color:#fff;font-weight:600;border:none;border-radius:8px;cursor:pointer;font-size:1.1rem;transition:background 0.2s;">Login</button>
+        <div id="login-message" class="message" style="margin-top:10px;color:#fff;font-weight:500;min-height:24px;text-align:center;"></div>
+      </form>
+      <form id="registerForm" style="display:none;width:100%;flex-direction:column;gap:16px;" onsubmit="return handleRegister(event)">
+        <input type="text" name="newUsername" placeholder="Username" required style="padding:10px;border-radius:8px;border:none;font-size:1rem;">
+        <input type="email" name="newEmail" placeholder="Email" required style="padding:10px;border-radius:8px;border:none;font-size:1rem;">
+        <input type="password" name="newPassword" placeholder="Password" required style="padding:10px;border-radius:8px;border:none;font-size:1rem;">
+        <button type="submit" class="main-btn" style="padding:12px 0;background:#7c3aed;color:#fff;font-weight:600;border:none;border-radius:8px;cursor:pointer;font-size:1.1rem;transition:background 0.2s;">Register</button>
+        <div id="register-message" class="message" style="margin-top:10px;color:#fff;font-weight:500;min-height:24px;text-align:center;"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Anime Tracker Section (hidden until login) -->
+  <div id="animeSection" style="display:none;">
+  <div id="welcomeUser" style="margin:16px auto 64px auto;max-width:600px;text-align:center;font-size:1.5rem;color:var(--accent);font-weight:600;padding:24px 32px;background:var(--card);border-radius:18px;box-shadow:0 4px 16px rgba(0,0,0,0.10);">Welcome, <span id="welcomeUsername">User</span>! 🎉</div>
+    <!-- User Profile Section -->
+    <section class="section" id="profile" style="max-width:400px;margin:40px auto 0 auto;">
+      <div class="card" style="align-items:center;">
+        <img id="profileAvatar" src="https://api.dicebear.com/7.x/bottts/svg?seed=anime" alt="Avatar" style="width:80px;height:80px;border-radius:50%;margin-bottom:12px;">
+        <h3 id="profileUsername" style="color:var(--accent);margin-bottom:8px;">Username</h3>
+        <p id="profileFavAnime" style="color:#e2e8f0;">Favorite Anime: <span id="favAnime">None</span></p>
+      </div>
+    </section>
+
+  <header>🎬 Anime & TV Series Tracker</header>
+  <div style="position:fixed;top:18px;right:32px;z-index:999;">
+    <button id="themeToggle" class="main-btn" style="padding:6px 18px;font-size:1rem;">Switch Theme</button>
+  </div>
+
+
+  <nav>
+    <a href="#home">Home</a>
+    <a href="#watchlist">Watchlist</a>
+    <a href="#clubs">Clubs</a>
+    <a href="#recommendations">Recommendations</a>
+  </nav>
+
+  <section class="section" id="home">
+    <h2>Welcome</h2>
+    <div class="card">
+      <h3>Track, Discover & Connect</h3>
+      <p>Monitor your watching progress, explore AI-powered recommendations, and interact with other fans via clubs and polls. Built for anime & TV lovers!</p>
+      <a class="main-btn" href="https://myanimelist.net/" target="_blank" rel="noopener">Explore More Anime</a>
+    </div>
+  </section>
+
+  <section class="section" id="watchlist">
+    <h2>Your Watchlist</h2>
+    <div class="card-container">
+      <div class="card">
+        <h3>Attack on Titan</h3>
+        <p>Season 4 • Episode 5<br>Status: ⏳ Pending</p>
+         <a class="main-btn" href="https://www.crunchyroll.com/series/GYVZQKJMR/attack-on-titan" target="_blank" rel="noopener">Watch Now</a>
+         <a class="main-btn" href="https://myanimelist.net/anime/16498/Shingeki_no_Kyojin" target="_blank" rel="noopener">Details</a>
+      </div>
+      <div class="card">
+        <h3>One Piece</h3>
+        <p>Season 1 • Episode 1080<br>Status: ✅ Watching</p>
+         <a class="main-btn" href="https://www.crunchyroll.com/series/GRMG8ZQZR/one-piece" target="_blank" rel="noopener">Watch Now</a>
+         <a class="main-btn" href="https://myanimelist.net/anime/21/One_Piece" target="_blank" rel="noopener">Details</a>
+      </div>
+      <div class="card">
+        <h3>Breaking Bad</h3>
+        <p>Completed • All Seasons<br>Status: ✅ Finished</p>
+         <a class="main-btn" href="https://www.netflix.com/title/70143836" target="_blank" rel="noopener">Watch Now</a>
+         <a class="main-btn" href="https://www.imdb.com/title/tt0903747/" target="_blank" rel="noopener">Details</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="clubs">
+    <h2>Community Clubs</h2>
+    <div class="card-container">
+      <div class="card">
+        <h3>🌌 Sci-Fi Club</h3>
+        <p>Discuss futuristic themes, parallel universes, and cyberpunk anime.</p>
+         <a class="main-btn" href="https://www.reddit.com/r/scifi/" target="_blank" rel="noopener">Join Sci-Fi Community</a>
+      </div>
+      <div class="card">
+        <h3>🔥 Shounen Legends</h3>
+        <p>Join Naruto, DBZ, One Piece, and more action-packed anime fandoms.</p>
+         <a class="main-btn" href="https://www.reddit.com/r/anime/" target="_blank" rel="noopener">Join Shounen Community</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="recommendations">
+    <h2>AI Recommendations</h2>
+    <div class="card-container">
+      <div class="card">
+        <h3>Jujutsu Kaisen</h3>
+        <p>Because you liked Demon Slayer and Attack on Titan.</p>
+         <a class="main-btn" href="https://www.crunchyroll.com/series/GY5P48XEY/jujutsu-kaisen" target="_blank" rel="noopener">Watch Now</a>
+      </div>
+      <div class="card">
+        <h3>Death Note</h3>
+        <p>Recommended for psychological and thriller fans.</p>
+         <a class="main-btn" href="https://www.netflix.com/title/70204970" target="_blank" rel="noopener">Watch Now</a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div style="margin-bottom:12px;font-size:1.1rem;">&copy; 2025 AnimeTV Tracker — Designed with ❤️ for anime lovers.</div>
+    <div style="margin-bottom:8px;">Contact: <a href="mailto:info@animetvtracker.com" style="color:var(--accent);text-decoration:none;">info@animetvtracker.com</a></div>
+    <div style="margin-bottom:8px;">Follow us:
+      <a href="https://twitter.com/animetvtracker" target="_blank" style="color:var(--accent);text-decoration:none;margin:0 8px;">Twitter</a>
+      <a href="https://instagram.com/animetvtracker" target="_blank" style="color:var(--accent);text-decoration:none;margin:0 8px;">Instagram</a>
+      <a href="https://facebook.com/animetvtracker" target="_blank" style="color:var(--accent);text-decoration:none;margin:0 8px;">Facebook</a>
+    </div>
+    <div style="margin-bottom:8px;">Quick Links:
+      <a href="#home" style="color:var(--accent);text-decoration:none;margin:0 8px;">Home</a>
+      <a href="#watchlist" style="color:var(--accent);text-decoration:none;margin:0 8px;">Watchlist</a>
+      <a href="#clubs" style="color:var(--accent);text-decoration:none;margin:0 8px;">Clubs</a>
+      <a href="#recommendations" style="color:var(--accent);text-decoration:none;margin:0 8px;">Recommendations</a>
+      <a href="#auth" style="color:var(--accent);text-decoration:none;margin:0 8px;">Login/Register</a>
+    </div>
+    <div style="margin-bottom:8px;">About: AnimeTV Tracker helps you organize, discover, and connect with anime and TV series fans worldwide. Join our community and stay updated!</div>
+    <div style="margin-bottom:8px;">Privacy Policy | Terms of Service</div>
+  </footer>
+  </div>
+
+<script>
+  // Confetti burst function
+  function confettiBurst() {
+    const confetti = document.getElementById('confetti');
+    for(let i=0; i<40; i++) {
+      const piece = document.createElement('div');
+      piece.className = 'confetti-piece';
+      piece.style.left = Math.random()*100 + 'vw';
+      piece.style.top = Math.random()*20 + 'vh';
+      piece.style.background = `hsl(${Math.random()*360},80%,60%)`;
+      piece.style.animationDelay = (Math.random()*0.5) + 's';
+      confetti.appendChild(piece);
+      setTimeout(() => piece.remove(), 1400);
+    }
+  }
+  // Theme Switcher
+  const themeToggle = document.getElementById('themeToggle');
+  let isDark = true;
+  themeToggle.onclick = function() {
+    isDark = !isDark;
+    if(isDark) {
+      document.documentElement.style.setProperty('--background', '#0f172a');
+      document.documentElement.style.setProperty('--card', 'rgba(255, 255, 255, 0.1)');
+      document.documentElement.style.setProperty('--primary', '#7c3aed');
+      document.documentElement.style.setProperty('--accent', '#f472b6');
+      document.body.style.color = 'white';
+      setTextColors('white', '#c4b5fd', 'var(--accent)', '#e2e8f0');
+      document.querySelector('nav').style.background = 'white';
+      document.querySelector('footer').style.background = 'white';
+      document.querySelectorAll('nav a').forEach(e => e.style.color = '#222');
+      document.querySelectorAll('footer, footer a').forEach(e => e.style.color = '#222');
+      themeToggle.textContent = 'Switch Theme';
+    } else {
+      document.documentElement.style.setProperty('--background', '#f3f4f6');
+      document.documentElement.style.setProperty('--card', 'rgba(0,0,0,0.05)');
+      document.documentElement.style.setProperty('--primary', '#2563eb');
+      document.documentElement.style.setProperty('--accent', '#eab308');
+      document.body.style.color = '#222';
+      setTextColors('#222', '#2563eb', '#eab308', '#333');
+      document.querySelector('nav').style.background = 'white';
+      document.querySelector('footer').style.background = 'white';
+      document.querySelectorAll('nav a').forEach(e => e.style.color = '#222');
+      document.querySelectorAll('footer, footer a').forEach(e => e.style.color = '#222');
+      themeToggle.textContent = 'Switch Theme';
+    }
+
+    function setTextColors(bodyColor, headingColor, accentColor, cardTextColor) {
+      document.body.style.color = bodyColor;
+      document.querySelectorAll('.section h2').forEach(e => e.style.color = headingColor);
+      document.querySelectorAll('.card h3').forEach(e => e.style.color = accentColor);
+      document.querySelectorAll('.card p, .card ul').forEach(e => e.style.color = cardTextColor);
+      let profileUsername = document.getElementById('profileUsername');
+      if(profileUsername) profileUsername.style.color = accentColor;
+      let profileFavAnime = document.getElementById('profileFavAnime');
+      if(profileFavAnime) profileFavAnime.style.color = cardTextColor;
+      // Adjust nav and footer for white backgrounds
+      document.querySelectorAll('nav a').forEach(e => e.style.color = bodyColor === 'white' ? '#222' : 'white');
+      document.querySelectorAll('footer, footer a').forEach(e => e.style.color = bodyColor === 'white' ? '#222' : 'white');
+    }
+  }
+  function showTab(tab) {
+    document.getElementById('loginForm').style.display = tab === 'login' ? 'flex' : 'none';
+    document.getElementById('registerForm').style.display = tab === 'register' ? 'flex' : 'none';
+    document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+    document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+  }
+  let currentUsername = '';
+  function handleLogin(event) {
+    event.preventDefault();
+    const username = event.target.username.value;
+    const password = event.target.password.value;
+    if(username.length < 3) {
+      document.getElementById('login-message').textContent = 'Username must be at least 3 characters.';
+      return false;
+    }
+    if(password.length < 6) {
+      document.getElementById('login-message').textContent = 'Password must be at least 6 characters.';
+      return false;
+    }
+    currentUsername = username;
+    document.getElementById('login-message').textContent = 'Login successful! Redirecting...';
+    document.getElementById('loginSection').classList.add('fade-out');
+    confettiBurst();
+    setTimeout(function() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('animeSection').style.display = 'block';
+      document.getElementById('animeSection').classList.add('fade-in');
+      document.getElementById('profileUsername').textContent = currentUsername;
+      document.getElementById('welcomeUsername').textContent = currentUsername;
+    }, 700);
+    return false;
+  }
+  function handleRegister(event) {
+    event.preventDefault();
+    const username = event.target.newUsername.value;
+    const password = event.target.newPassword.value;
+    if(username.length < 3) {
+      document.getElementById('register-message').textContent = 'Username must be at least 3 characters.';
+      return false;
+    }
+    if(password.length < 6) {
+      document.getElementById('register-message').textContent = 'Password must be at least 6 characters.';
+      return false;
+    }
+    currentUsername = username;
+    document.getElementById('register-message').textContent = 'Registration successful! Redirecting...';
+    document.getElementById('loginSection').classList.add('fade-out');
+    confettiBurst();
+    setTimeout(function() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('animeSection').style.display = 'block';
+      document.getElementById('animeSection').classList.add('fade-in');
+      document.getElementById('profileUsername').textContent = currentUsername;
+      document.getElementById('welcomeUsername').textContent = currentUsername;
+    }, 700);
+    event.target.reset();
+    return false;
+  }
+  // Default tab
+  showTab('login');
+</script>
+</body>
+</html>
